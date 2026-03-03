@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-Filer — Universal Document Merger</title>
+    <meta name="description"
+        content="Merge PPTX, DOCX, and PDF files into one — offline, fast, and beautiful. The ultimate document consolidation tool.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ═══ Reset ═══ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #06060b;
+            --glass: rgba(255, 255, 255, 0.035);
+            --glass-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-hover: rgba(255, 255, 255, 0.14);
+            --text: rgba(255, 255, 255, 0.92);
+            --text-dim: rgba(255, 255, 255, 0.5);
+            --text-muted: rgba(255, 255, 255, 0.3);
+            --blue: #60a5fa;
+            --violet: #a78bfa;
+            --pink: #f472b6;
+            --emerald: #34d399;
+            --grad: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            --grad-emerald: linear-gradient(135deg, #34d399 0%, #60a5fa 100%);
+            --radius: 20px;
+            --blur: 24px;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: rgba(167, 139, 250, 0.3);
+        }
+
+        /* ═══ Background ═══ */
+        .bg-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.35;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.4), transparent 70%);
+            top: -15%;
+            left: -8%;
+            animation: oFloat1 22s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.35), transparent 70%);
+            top: 40%;
+            right: -12%;
+            animation: oFloat2 28s ease-in-out infinite;
+        }
+
+        .orb-3 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(244, 114, 182, 0.25), transparent 70%);
+            bottom: -8%;
+            left: 25%;
+            animation: oFloat3 24s ease-in-out infinite;
+        }
+
+        .orb-4 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(52, 211, 153, 0.2), transparent 70%);
+            top: 65%;
+            left: 55%;
+            animation: oFloat4 20s ease-in-out infinite;
+        }
+
+        @keyframes oFloat1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+
+            50% {
+                transform: translate(80px, 60px) scale(1.15)
+            }
+        }
+
+        @keyframes oFloat2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+
+            50% {
+                transform: translate(-60px, -50px) scale(1.1)
+            }
+        }
+
+        @keyframes oFloat3 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+
+            50% {
+                transform: translate(70px, -40px) scale(1.1)
+            }
+        }
+
+        @keyframes oFloat4 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+
+            33% {
+                transform: translate(-40px, 60px) scale(1.15)
+            }
+
+            66% {
+                transform: translate(50px, -30px) scale(0.9)
+            }
+        }
+
+        /* ═══ Layout ═══ */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ═══ Nav ═══ */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 28px;
+            margin: 20px 0 0;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            backdrop-filter: blur(var(--blur));
+            -webkit-backdrop-filter: blur(var(--blur));
+            animation: slideDown 0.6s var(--spring);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-cta {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            background: var(--grad);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s var(--spring), box-shadow 0.3s;
+            box-shadow: 0 4px 16px rgba(96, 165, 250, 0.25);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(96, 165, 250, 0.4);
+        }
+
+        /* ═══ Hero ═══ */
+        .hero {
+            text-align: center;
+            padding: 100px 0 80px;
+            animation: fadeUp 0.8s var(--spring) 0.2s backwards;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            background: rgba(52, 211, 153, 0.08);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--emerald);
+            margin-bottom: 28px;
+        }
+
+        .hero-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.08;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 .grad {
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 14px;
+            background: var(--grad);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s var(--spring), box-shadow 0.3s;
+            box-shadow: 0 8px 32px rgba(96, 165, 250, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(96, 165, 250, 0.45);
+        }
+
+        .btn-secondary {
+            padding: 16px 40px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--glass);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s var(--ease);
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ═══ Hero Visual ═══ */
+        .hero-visual {
+            margin: 0 auto;
+            max-width: 750px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            backdrop-filter: blur(var(--blur));
+            padding: 6px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.8s var(--spring) 0.5s backwards;
+        }
+
+        .hero-visual::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.5), rgba(167, 139, 250, 0.6), rgba(244, 114, 182, 0.5), transparent);
+        }
+
+        .hero-visual-inner {
+            background: rgba(10, 10, 18, 0.8);
+            border-radius: 20px;
+            padding: 40px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mock-file {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            animation: floatFile 4s ease-in-out infinite;
+        }
+
+        .mock-file:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .mock-file:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes floatFile {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-8px)
+            }
+        }
+
+        .mock-file-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .mock-file-icon.pdf {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+
+        .mock-file-icon.docx {
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .mock-file-icon.pptx {
+            background: rgba(249, 115, 22, 0.12);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.15);
+        }
+
+        .mock-file-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        .mock-arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            animation: arrowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: translateX(0)
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translateX(4px)
+            }
+        }
+
+        .mock-result {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: rgba(52, 211, 153, 0.06);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            border-radius: 12px;
+        }
+
+        .mock-result-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .mock-result-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--emerald);
+        }
+
+        /* ═══ Stats ═══ */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 60px 0;
+            animation: fadeUp 0.8s var(--spring) 0.7s backwards;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 24px 16px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            transition: all 0.3s var(--ease);
+        }
+
+        .stat:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+        }
+
+        /* ═══ Features ═══ */
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 16px;
+            background: rgba(96, 165, 250, 0.08);
+            border: 1px solid rgba(96, 165, 250, 0.12);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .section-sub {
+            font-size: 1rem;
+            color: var(--text-dim);
+            max-width: 550px;
+            line-height: 1.7;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-header .section-sub {
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            padding: 32px 28px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(16px);
+            transition: all 0.4s var(--ease);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), rgba(167, 139, 250, 0.4), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border: 1px solid;
+            font-size: 1.2rem;
+        }
+
+        .feature-icon.blue {
+            background: rgba(96, 165, 250, 0.1);
+            border-color: rgba(96, 165, 250, 0.15);
+            color: var(--blue);
+        }
+
+        .feature-icon.violet {
+            background: rgba(167, 139, 250, 0.1);
+            border-color: rgba(167, 139, 250, 0.15);
+            color: var(--violet);
+        }
+
+        .feature-icon.pink {
+            background: rgba(244, 114, 182, 0.1);
+            border-color: rgba(244, 114, 182, 0.15);
+            color: var(--pink);
+        }
+
+        .feature-icon.emerald {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: rgba(52, 211, 153, 0.15);
+            color: var(--emerald);
+        }
+
+        .feature-icon.amber {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .feature-icon.cyan {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: rgba(34, 211, 238, 0.15);
+            color: #22d3ee;
+        }
+
+        .feature-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.65;
+        }
+
+        /* ═══ How It Works ═══ */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            counter-reset: step;
+        }
+
+        .step {
+            padding: 36px 28px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(16px);
+            position: relative;
+            transition: all 0.4s var(--ease);
+        }
+
+        .step:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+        }
+
+        .step-num {
+            counter-increment: step;
+            font-size: 3rem;
+            font-weight: 900;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.2;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .step-num::before {
+            content: counter(step, decimal-leading-zero);
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.65;
+        }
+
+        /* ═══ Formats ═══ */
+        .formats-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .format-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s var(--ease);
+        }
+
+        .format-pill:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-3px);
+        }
+
+        .format-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .format-dot.pdf {
+            background: #f87171;
+            box-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+        }
+
+        .format-dot.docx {
+            background: #60a5fa;
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+        }
+
+        .format-dot.pptx {
+            background: #fb923c;
+            box-shadow: 0 0 8px rgba(251, 146, 60, 0.4);
+        }
+
+        .format-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .format-ext {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ═══ CTA ═══ */
+        .cta-section {
+            text-align: center;
+            padding: 100px 0 80px;
+        }
+
+        .cta-card {
+            padding: 64px 48px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            backdrop-filter: blur(var(--blur));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.5), rgba(167, 139, 250, 0.6), rgba(244, 114, 182, 0.5), transparent);
+        }
+
+        .cta-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(0deg, rgba(96, 165, 250, 0.03), transparent);
+            pointer-events: none;
+        }
+
+        .cta-title {
+            font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .cta-sub {
+            font-size: 1rem;
+            color: var(--text-dim);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+        }
+
+        .cta-code {
+            display: inline-block;
+            padding: 14px 28px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 20px;
+            font-family: 'SF Mono', 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            color: var(--blue);
+            letter-spacing: 0.02em;
+        }
+
+        .cta-code span {
+            color: var(--text-muted);
+        }
+
+        /* ═══ Footer ═══ */
+        footer {
+            padding: 32px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        footer p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--text);
+        }
+
+        /* ═══ Animations ═══ */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s var(--ease), transform 0.7s var(--spring);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ═══ Responsive ═══ */
+        @media (max-width:900px) {
+
+            .features-grid,
+            .steps {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width:600px) {
+
+            .features-grid,
+            .steps,
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .hero {
+                padding: 60px 0 40px;
+            }
+
+            .hero-visual-inner {
+                flex-direction: column;
+            }
+
+            .cta-card {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-scene" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+    </div>
+
+    <div class="wrapper">
+
+        <!-- NAV -->
+        <nav>
+            <a href="#" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <img src="/static/logo.png" alt="J-Filer" width="42" height="42"
+                        style="mix-blend-mode: screen; object-fit: contain;">
+                </div>
+                <span class="nav-brand">J-Filer</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#formats">Formats</a></li>
+                <li><a href="https://github.com/AICraftAlchemy/J-Filer" target="_blank">GitHub</a></li>
+            </ul>
+            <a href="/app" class="nav-cta">Launch App →</a>
+        </nav>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-badge"><span class="hero-badge-dot"></span> 100% Offline · Open Source</div>
+            <h1>Merge Documents<br><span class="grad">Like Never Before</span></h1>
+            <p class="hero-sub">Consolidate PPTX, DOCX, and PDF files into a single structured document — fast, private,
+                and beautifully simple.</p>
+            <div class="hero-actions">
+                <a href="/app" class="btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M9 2v14M2 9h14" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Open Merger
+                </a>
+                <a href="https://github.com/AICraftAlchemy/J-Filer" class="btn-secondary" target="_blank">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+        </section>
+
+        <!-- Hero Visual -->
+        <div class="hero-visual">
+            <div class="hero-visual-inner">
+                <div class="mock-file">
+                    <div class="mock-file-icon pdf">PDF</div>
+                    <div>
+                        <div class="mock-file-name">report.pdf</div>
+                    </div>
+                </div>
+                <div class="mock-file">
+                    <div class="mock-file-icon docx">DOCX</div>
+                    <div>
+                        <div class="mock-file-name">notes.docx</div>
+                    </div>
+                </div>
+                <div class="mock-file">
+                    <div class="mock-file-icon pptx">PPTX</div>
+                    <div>
+                        <div class="mock-file-name">slides.pptx</div>
+                    </div>
+                </div>
+                <div class="mock-arrow">→</div>
+                <div class="mock-result">
+                    <div class="mock-result-icon">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M5 9l3 3 5-5" stroke="#34d399" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="mock-result-label">merged.pdf</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value">3+</div>
+                <div class="stat-label">File Formats</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">No File Limit</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Data Uploaded</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Offline</div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <section class="section reveal" id="features">
+            <div class="section-header">
+                <div class="section-tag">✦ Features</div>
+                <h2 class="section-title">Everything You Need</h2>
+                <p class="section-sub">Powerful document merging with zero complexity. Drop your files and get a
+                    perfectly consolidated output.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 6h8M8 10h8M8 14h5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                            <rect x="3" y="2" width="18" height="20" rx="3" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="feature-title">PDF Merge</div>
+                    <div class="feature-desc">Combine unlimited PDF files into a single document while preserving page
+                        order and formatting.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon violet">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 6h8M8 10h8M8 14h5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                            <rect x="3" y="2" width="18" height="20" rx="3" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="feature-title">DOCX Merge</div>
+                    <div class="feature-desc">Merge Word documents with automatic page breaks and full content transfer
+                        between files.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon pink">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="feature-title">PPTX Merge</div>
+                    <div class="feature-desc">Concatenate PowerPoint slides from multiple presentations into one
+                        seamless deck.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon emerald">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 14l5 5L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="feature-title">Cross-Format</div>
+                    <div class="feature-desc">Mix different formats — PPTX + DOCX + PDF — and merge them all into a
+                        unified PDF output.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon amber">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="feature-title">Fully Offline</div>
+                    <div class="feature-desc">Your files never leave your computer. Everything processes locally with
+                        zero network calls.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon cyan">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="feature-title">Lightning Fast</div>
+                    <div class="feature-desc">Optimized processing engine handles large batches with minimal memory
+                        usage and maximum speed.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="section reveal" id="how-it-works">
+            <div class="section-header">
+                <div class="section-tag">⚙ How It Works</div>
+                <h2 class="section-title">Three Simple Steps</h2>
+                <p class="section-sub">No configuration needed. Just drop, choose, and merge.</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num"></div>
+                    <div class="step-title">Drop Your Files</div>
+                    <div class="step-desc">Drag and drop any combination of PDF, DOCX, and PPTX files into the merger
+                        zone.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num"></div>
+                    <div class="step-title">Choose Output Format</div>
+                    <div class="step-desc">Select your desired output — PDF, DOCX, or PPTX. Auto-detect picks the best
+                        format for you.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num"></div>
+                    <div class="step-title">Download Result</div>
+                    <div class="step-desc">Click merge and download your perfectly consolidated document in seconds.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Supported Formats -->
+        <section class="section reveal" id="formats">
+            <div class="section-header">
+                <div class="section-tag">📄 Formats</div>
+                <h2 class="section-title">Works With Your Files</h2>
+                <p class="section-sub">Native support for the three most-used document formats in the world.</p>
+            </div>
+            <div class="formats-row">
+                <div class="format-pill">
+                    <div class="format-dot pdf"></div>
+                    <div>
+                        <div class="format-label">PDF</div>
+                        <div class="format-ext">.pdf</div>
+                    </div>
+                </div>
+                <div class="format-pill">
+                    <div class="format-dot docx"></div>
+                    <div>
+                        <div class="format-label">Word</div>
+                        <div class="format-ext">.docx / .doc</div>
+                    </div>
+                </div>
+                <div class="format-pill">
+                    <div class="format-dot pptx"></div>
+                    <div>
+                        <div class="format-label">PowerPoint</div>
+                        <div class="format-ext">.pptx / .ppt</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section reveal">
+            <div class="cta-card">
+                <h2 class="cta-title">Ready to Merge?</h2>
+                <p class="cta-sub">Start consolidating your documents in seconds — no sign-up, no upload, no limits.</p>
+                <a href="/app" class="btn-primary" style="font-size:1.05rem;">
+                    Launch Document Merger →
+                </a>
+                <div class="cta-code"><span>$</span> pip install -r requirements.txt && python app.py</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2026 J-Filer · Built with ♥ · <a href="https://github.com/AICraftAlchemy/J-Filer"
+                    target="_blank">GitHub</a></p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Scroll reveal animation
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+        }, { threshold: 0.12 });
+        reveals.forEach(el => observer.observe(el));
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

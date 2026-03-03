@@ -1,0 +1,6 @@
+flask
+PyPDF2
+python-docx
+python-pptx
+comtypes
+pywin32
