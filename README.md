@@ -1,6 +1,6 @@
 # J-Filer — Universal Document Merger
 
-A high-performance, offline desktop application for merging and consolidating **PPTX**, **DOCX**, and **PDF** files into a single structured output.
+A high-performance, offline desktop application for merging and consolidating **PPTX**, **DOCX**, and **PDF** files into a single structured output — with built-in **file size compression**.
 
 Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely offline.
 
@@ -19,6 +19,7 @@ Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely o
 | **DOCX Merge** | Merge Word documents with page breaks |
 | **PPTX Merge** | Concatenate PowerPoint slides |
 | **Cross-Format** | Mix PPTX + DOCX + PDF → unified PDF |
+| **Compress Output** | Reduce merged file size — PDF stream compression via `pikepdf`, image compression for DOCX/PPTX via `Pillow` |
 | **Drag & Drop** | Beautiful file upload with drag-and-drop |
 | **Progress Bar** | Real-time percentage during merge |
 | **Offline** | 100% local — no internet required |
@@ -30,7 +31,7 @@ Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely o
 
 ### Option 1 — Download & Run (Recommended)
 
-1. Go to the [Releases](https://github.com/YOUR_USERNAME/J-Filer/releases) page
+1. Go to the [Releases](https://github.com/HackerJbon1337/J-Filer/releases) page
 2. Download **`J-Filer.exe`**
 3. Double-click to launch — that's it!
 
@@ -40,7 +41,7 @@ Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely o
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/J-Filer.git
+git clone https://github.com/HackerJbon1337/J-Filer.git
 cd J-Filer
 
 # Install dependencies
@@ -53,12 +54,7 @@ python app.py
 ### Option 3 — Build the Installer Yourself
 
 ```bash
-# Install PyInstaller
-pip install pyinstaller
-
-# Build the .exe
 pyinstaller jfiler.spec --clean --noconfirm
-
 # Output: dist/J-Filer.exe
 ```
 
@@ -106,6 +102,32 @@ J-Filer/
 |-------|--------|
 | PDF + DOCX + PPTX | Unified PDF |
 | DOCX + PPTX | Combined PDF |
+
+---
+
+## 🗜️ Compress Output
+
+Enable the **Compress Output** toggle before merging to reduce the final file size:
+
+- **PDF** — Rewrites the PDF with compressed content streams, object deduplication, and linearization using `pikepdf`.
+- **DOCX / PPTX** — Re-compresses embedded images (downscales images > 1920px, converts to optimised JPEG at quality 72) using `Pillow`.
+
+If compression fails for any reason, the original merged file is returned safely.
+
+---
+
+## 📦 Dependencies
+
+```
+flask
+PyPDF2
+python-docx
+python-pptx
+comtypes
+pywin32
+pikepdf      # PDF compression
+Pillow       # Image compression for DOCX/PPTX
+```
 
 ---
 
