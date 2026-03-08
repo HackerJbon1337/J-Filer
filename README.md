@@ -1,8 +1,8 @@
-# J-Filer — Universal Document Merger
+# J-Filer — The Ultimate Document Toolkit
 
-A high-performance, offline desktop application for merging and consolidating **PPTX**, **DOCX**, and **PDF** files into a single structured output — with built-in **file size compression**.
+A high-performance, offline desktop application suite for **Merging**, **Converting**, **Inverting**, and **Compressing** your PPTX, DOCX, PDF, and Image files.
 
-Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely offline.
+Built with Python, Flask, and a stunning **React-Bits inspired Liquid Glass UI** — runs entirely offline.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -11,19 +11,21 @@ Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely o
 
 ---
 
-## ✨ Features
+## ✨ The 5-in-1 Toolkit
 
-| Feature | Description |
+| Tool | Description |
 |---------|-------------|
-| **PDF Merge** | Combine multiple PDFs into one |
-| **DOCX Merge** | Merge Word documents with page breaks |
-| **PPTX Merge** | Concatenate PowerPoint slides |
-| **Cross-Format** | Mix PPTX + DOCX + PDF → unified PDF |
-| **Compress Output** | Reduce merged file size — PDF stream compression via `pikepdf`, image compression for DOCX/PPTX via `Pillow` |
-| **Drag & Drop** | Beautiful file upload with drag-and-drop |
-| **Progress Bar** | Real-time percentage during merge |
-| **Offline** | 100% local — no internet required |
-| **Liquid Glass UI** | Premium dark theme with iridescent effects |
+| **Merger** | Combine unlimited PDFs, DOCXs, or PPTXs into single files |
+| **Converter** | Convert PDFs, DOCXs, and PPTXs to PDF. Instantly turn JPG/PNG/WEBP images into PDFs or PPTX files |
+| **Compressor** | Aggressively shrink PDF, DOCX, and PPTX files by safely downscaling embedded images offline |
+| **Inverter** | Invert the colours of PDF and PPTX files for dark-mode reading and printing |
+| **Cross-Format** | Mix PPTX + DOCX + PDF and merge them completely into a unified PDF |
+
+### Core Features
+- **Drag & Drop** Beautiful file upload zones with drag-and-drop
+- **Progress Bar** Real-time task progress tracking
+- **100% Offline** Your files never leave your computer
+- **Liquid Glass UI** Premium dark theme with interactive 3D Vanilla Tilt animations
 
 ---
 
@@ -32,10 +34,10 @@ Built with Python, Flask, and a stunning **Liquid Glass** UI — runs entirely o
 ### Option 1 — Download & Run (Recommended)
 
 1. Go to the [Releases](https://github.com/HackerJbon1337/J-Filer/releases) page
-2. Download **`J-Filer.exe`**
-3. Double-click to launch — that's it!
+2. Download **`J-Filer-Setup.exe`**
+3. Install the application. A shortcut will automatically be created on your Desktop!
 
-> No Python, no terminal, no setup required. The app opens in your browser automatically.
+> No Python, no terminal, no setup required. The standalone app opens via an optimized offline server.
 
 ### Option 2 — Run from Source
 
@@ -54,79 +56,37 @@ python app.py
 ### Option 3 — Build the Installer Yourself
 
 ```bash
-pyinstaller jfiler.spec --clean --noconfirm
-# Output: dist/J-Filer.exe
-```
+# First, generate the standalone core:
+.\build.bat
 
-Or just run `build.bat` on Windows.
-
----
-
-## 📁 Project Structure
-
-```
-J-Filer/
-├── app.py               # Flask backend + desktop launcher
-├── jfiler.spec          # PyInstaller build config
-├── build.bat            # One-click build script
-├── requirements.txt     # Python dependencies
-├── setup.bat            # Dev setup script
-├── mergers/
-│   ├── pdf_merger.py    # PDF merge engine
-│   ├── docx_merger.py   # DOCX merge engine
-│   └── pptx_merger.py   # PPTX merge engine
-├── converter/
-│   └── converter.py     # Cross-format PDF converter
-├── templates/
-│   ├── landing.html     # Landing page
-│   └── index.html       # Merger app UI
-└── static/
-    ├── index.css        # Liquid glass design system
-    ├── app.js           # Frontend logic
-    └── logo.png         # App logo
+# Then, build the setup wizard using Inno Setup Compiler
+iscc setup.iss
+# Output: Output/J-Filer-Setup.exe
 ```
 
 ---
 
-## 🔧 Merge Modes
+## 🗜️ Aggressive Compression Engine
 
-### Same Format
-| Input | Output |
-|-------|--------|
-| PDF + PDF | Single PDF |
-| DOCX + DOCX | Single DOCX |
-| PPTX + PPTX | Single PPTX |
+The standalone Compressor tool shrinks file sizes remarkably without ruining visual quality:
 
-### Cross-Format *(requires MS Office)*
-| Input | Output |
-|-------|--------|
-| PDF + DOCX + PPTX | Unified PDF |
-| DOCX + PPTX | Combined PDF |
+- **PDF Compression**: Uses `PyMuPDF (fitz)` and `Pillow` to actively extract, downscale (max height/width of 1200px), and heavily compress (JPEG Quality 50) all embedded images. Uses byte-comparison to ensure strict size reduction.
+- **DOCX / PPTX Compression**: Similar heavy downscaling (1200px) and image re-compression using `Pillow` across all media objects.
 
 ---
 
-## 🗜️ Compress Output
-
-Enable the **Compress Output** toggle before merging to reduce the final file size:
-
-- **PDF** — Rewrites the PDF with compressed content streams, object deduplication, and linearization using `pikepdf`.
-- **DOCX / PPTX** — Re-compresses embedded images (downscales images > 1920px, converts to optimised JPEG at quality 72) using `Pillow`.
-
-If compression fails for any reason, the original merged file is returned safely.
-
----
-
-## 📦 Dependencies
+## 📦 Core Dependencies
 
 ```
 flask
 PyPDF2
 python-docx
 python-pptx
+PyMuPDF (fitz) # Deep PDF extraction
+Pillow       # Image manipulation and compression
+pikepdf      # Lossless PDF stream compression
+pywin32      # Core Windows integrations
 comtypes
-pywin32
-pikepdf      # PDF compression
-Pillow       # Image compression for DOCX/PPTX
 ```
 
 ---
