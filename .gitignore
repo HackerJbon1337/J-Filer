@@ -1,32 +1,33 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-*.egg-info/
-dist/
-build/
-*.egg
-
-# Virtual Environment
-venv/
+.Python
 env/
-.env/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-Thumbs.db
-.DS_Store
-desktop.ini
-
-# App outputs
-output/
-
-# Temp files
-*.tmp
-*.bak
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+venv/
+venv
+ENV/
+env.bak/
+venv.bak/
+Output/
+test*.pdf
+test*.pptx
+test*.jpg
+compressed_test*.pdf
+build_log.txt

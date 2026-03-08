@@ -193,7 +193,7 @@ body {
     z-index: 1;
     max-width: 720px;
     margin: 0 auto;
-    padding: 32px 20px 24px;
+    padding: 32px 20px 48px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -202,8 +202,10 @@ body {
 /* ── Header ────────────────────────────────────────────── */
 .app-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
     padding: 16px 24px;
     margin-bottom: 24px;
     background: var(--glass-bg);
@@ -229,6 +231,7 @@ body {
     height: 48px;
     border-radius: var(--radius-md);
     box-shadow: 0 4px 16px rgba(96, 165, 250, 0.15);
+    overflow: hidden;
 }
 
 .app-title {
@@ -260,6 +263,13 @@ body {
     font-size: 0.7rem;
     color: var(--text-secondary);
     transition: var(--transition-smooth);
+}
+
+.badge-text {
+    line-height: 1;
+    display: inline-block;
+    transform: translateY(1px);
+    /* micro-adjustment for visual center */
 }
 
 .badge-dot {
@@ -1011,7 +1021,7 @@ body {
 /* ── Footer ────────────────────────────────────────────── */
 .app-footer {
     margin-top: auto;
-    padding: 24px 0 8px;
+    padding: 40px 0 16px;
     text-align: center;
 }
 
@@ -1163,4 +1173,241 @@ body {
 ::selection {
     background: rgba(167, 139, 250, 0.3);
     color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Tool Info Card  — shared by Inverter, Compressor, Converter (Images)
+   ═══════════════════════════════════════════════════════ */
+.tool-info-card {
+    padding: 20px 24px;
+    animation-delay: 0.05s;
+}
+
+.tool-info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.tool-info-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+    color: var(--text-primary);
+}
+
+/* gradient variants for each tool */
+.tool-info-icon.invert-gradient {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(244, 114, 182, 0.18));
+    border: 1px solid rgba(167, 139, 250, 0.25);
+}
+
+.tool-info-icon.compress-gradient {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.18), rgba(96, 165, 250, 0.18));
+    border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.tool-info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tool-info-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.tool-info-desc {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.tool-info-formats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Converter Page — Additional Styles
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Header right group (nav + badge) ─────────────────── */
+.header-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* ── Nav Tabs ──────────────────────────────────────────── */
+.nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    white-space: nowrap;
+}
+
+.nav-tab:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+}
+
+.nav-tab.active {
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(96, 165, 250, 0.25);
+}
+
+/* ── Conversion Matrix Card ────────────────────────────── */
+.conv-matrix-card {
+    animation-delay: 0.05s;
+    padding: 16px 20px;
+}
+
+.conv-matrix {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.conv-pair {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    transition: var(--transition-fast);
+}
+
+.conv-pair:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--glass-border-hover);
+    transform: translateY(-1px);
+}
+
+.conv-arrow {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* ── Format Pills (reused in matrix, file list preview) ── */
+.fmt-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+}
+
+.fmt-pill.pdf {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.fmt-pill.docx,
+.fmt-pill.doc {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.fmt-pill.pptx,
+.fmt-pill.ppt {
+    background: rgba(249, 115, 22, 0.12);
+    color: #fb923c;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+/* ── Converter file-list inline arrow ─────────────────── */
+.conv-arrow-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.target-fmt-preview {
+    font-size: 0.65rem;
+    font-weight: 800;
+}
+
+.target-fmt-preview.same {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+/* ── Office / Conversion Notice ────────────────────────── */
+.conv-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(250, 204, 21, 0.06);
+    border: 1px solid rgba(250, 204, 21, 0.15);
+    font-size: 0.77rem;
+    color: rgba(250, 204, 21, 0.85);
+    animation: fadeSlideUp 0.3s ease;
+}
+
+/* ── Responsive tweaks for converter ──────────────────── */
+@media (max-width: 560px) {
+    .nav-tabs {
+        gap: 2px;
+    }
+
+    .nav-tab {
+        padding: 6px 10px;
+        font-size: 0.72rem;
+    }
+
+    .conv-matrix {
+        gap: 7px;
+    }
+
+    .conv-pair {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+
+    .header-right {
+        gap: 8px;
+    }
 }

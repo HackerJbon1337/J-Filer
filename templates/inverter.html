@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Merger — J-Filer</title>
+    <title>Color Inverter — J-Filer</title>
     <meta name="description"
-        content="Merge and consolidate PPTX, DOCX, and PDF files into a single document — offline, fast, and beautiful.">
+        content="Invert colors of PDF and PPTX files — turn dark backgrounds white for easy printing. Offline, fast, and private.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -32,14 +32,14 @@
                         style="mix-blend-mode: screen; object-fit: contain;">
                 </div>
                 <div>
-                    <h1 class="app-title">Document Merger</h1>
-                    <p class="app-subtitle">Merge PPTX · DOCX · PDF — Offline</p>
+                    <h1 class="app-title">Color Inverter</h1>
+                    <p class="app-subtitle">Dark → Light · PDF · PPTX — Offline</p>
                 </div>
             </div>
             <div class="header-right">
                 <!-- Nav tabs -->
                 <nav class="nav-tabs" aria-label="Tool navigation">
-                    <a href="/app" class="nav-tab active" id="nav-tab-merger">
+                    <a href="/app" class="nav-tab" id="nav-tab-merger">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                             <path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1.5"
                                 stroke-linecap="round" />
@@ -53,7 +53,7 @@
                         </svg>
                         Converter
                     </a>
-                    <a href="/inverter" class="nav-tab" id="nav-tab-inverter">
+                    <a href="/inverter" class="nav-tab active" id="nav-tab-inverter">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                             <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5" />
                             <path d="M7 1.5v11" stroke="currentColor" stroke-width="1.5" />
@@ -79,6 +79,24 @@
 
         <!-- Main Content -->
         <main class="main-content">
+
+            <!-- Inversion Info Card -->
+            <section class="glass-card tool-info-card">
+                <div class="tool-info">
+                    <div class="tool-info-text">
+                        <h2 class="tool-info-title">Invert Document Colors</h2>
+                        <p class="tool-info-desc">
+                            Transform dark-background slides and documents into print-friendly versions.
+                            Every pixel is inverted — dark becomes light, light becomes dark.
+                        </p>
+                    </div>
+                    <div class="tool-info-formats">
+                        <span class="fmt-pill pdf">PDF</span>
+                        <span class="fmt-pill pptx">PPTX</span>
+                    </div>
+                </div>
+            </section>
+
             <!-- Drop Zone -->
             <section class="glass-card drop-zone-card" id="drop-zone-card">
                 <div class="drop-zone" id="drop-zone">
@@ -91,17 +109,17 @@
                                     stroke-linecap="round" />
                                 <defs>
                                     <linearGradient id="dropG" x1="0" y1="0" x2="56" y2="56">
-                                        <stop stop-color="#60a5fa" />
-                                        <stop offset="0.5" stop-color="#a78bfa" />
-                                        <stop offset="1" stop-color="#f472b6" />
+                                        <stop stop-color="#a78bfa" />
+                                        <stop offset="0.5" stop-color="#f472b6" />
+                                        <stop offset="1" stop-color="#fbbf24" />
                                     </linearGradient>
                                 </defs>
                             </svg>
                         </div>
                         <p class="drop-text">Drag & drop your files here</p>
-                        <p class="drop-subtext">or click to browse · PDF, DOCX, PPTX</p>
+                        <p class="drop-subtext">or click to browse · PDF, PPTX · Single or batch</p>
                     </div>
-                    <input type="file" id="file-input" multiple accept=".pdf,.docx,.pptx,.doc,.ppt" hidden>
+                    <input type="file" id="file-input" multiple accept=".pdf,.pptx,.ppt" hidden>
                 </div>
             </section>
 
@@ -128,50 +146,24 @@
 
             <!-- Controls -->
             <section class="glass-card controls-card" id="controls-card" style="display:none;">
-                <div class="controls-grid">
-                    <div class="control-group">
-                        <label class="control-label" for="output-format">Output Format</label>
-                        <div class="select-wrapper">
-                            <select id="output-format" class="glass-select">
-                                <option value="auto">Auto Detect</option>
-                                <option value="pdf">PDF</option>
-                                <option value="docx">Word (DOCX)</option>
-                                <option value="pptx">PowerPoint (PPTX)</option>
-                            </select>
-                            <svg class="select-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                <div class="controls-grid" style="justify-content: center;">
+                    <button class="btn-merge" id="invert-btn" disabled>
+                        <span class="btn-merge-text">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                style="display:inline;vertical-align:middle;margin-right:6px;">
+                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M8 2v12" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M8 2a6 6 0 0 1 0 12" fill="currentColor" opacity="0.3" />
                             </svg>
-                        </div>
-                    </div>
-                    <button class="btn-merge" id="merge-btn" disabled>
-                        <span class="btn-merge-text">Merge Documents</span>
+                            Invert Colors
+                        </span>
                         <span class="btn-merge-loading" style="display:none;">
                             <span class="spinner"></span>
-                            Merging…
+                            Inverting…
                         </span>
                     </button>
                 </div>
-                <!-- Compress Row -->
-                <div class="compress-row">
-                    <div class="compress-row-left">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="compress-icon">
-                            <path d="M8 2v4M8 10v4M2 8h4M10 8h4" stroke="currentColor" stroke-width="1.5"
-                                stroke-linecap="round" />
-                            <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
-                        </svg>
-                        <div>
-                            <span class="compress-label">Compress Output</span>
-                            <span class="compress-desc">Reduce file size after merging</span>
-                        </div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="compress-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
             </section>
-
 
             <!-- Progress Bar -->
             <section class="glass-card progress-card" id="progress-card" style="display:none;">
@@ -187,15 +179,15 @@
                                     transform="rotate(-90 24 24)" />
                                 <defs>
                                     <linearGradient id="progGrad" x1="0" y1="0" x2="1" y2="1">
-                                        <stop stop-color="#60a5fa" />
-                                        <stop offset="1" stop-color="#a78bfa" />
+                                        <stop stop-color="#a78bfa" />
+                                        <stop offset="1" stop-color="#f472b6" />
                                     </linearGradient>
                                 </defs>
                             </svg>
                             <span class="progress-percent" id="progress-percent">0%</span>
                         </div>
                         <div class="progress-info">
-                            <div class="progress-title" id="progress-title">Merging documents…</div>
+                            <div class="progress-title" id="progress-title">Inverting…</div>
                             <div class="progress-subtitle" id="progress-subtitle">Preparing files</div>
                         </div>
                     </div>
@@ -205,7 +197,7 @@
                 </div>
             </section>
 
-            <!-- Status / Result -->
+            <!-- Result -->
             <section class="glass-card result-card" id="result-card" style="display:none;">
                 <div class="result-content" id="result-content"></div>
             </section>
@@ -213,14 +205,14 @@
 
         <!-- Footer -->
         <footer class="app-footer">
-            <p>Universal Document Merger · Offline · Open Source</p>
+            <p>Color Inverter · Dark → Light · Offline · Open Source</p>
         </footer>
     </div>
 
     <!-- Toast container -->
     <div class="toast-container" id="toast-container"></div>
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='inverter.js') }}"></script>
 </body>
 
 </html>
